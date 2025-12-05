@@ -45,6 +45,7 @@ class Scurvy(magicbot.MagicRobot):
         Called before all components' execute().
         """
         self.manuallyDrive()  # Assumes we always want to drive manually in teleop
+        # self.driveForward()
 
     def disabledInit(self) -> None:
         """Called afer the on_disable() of all components."""
