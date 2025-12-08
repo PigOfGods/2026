@@ -25,7 +25,7 @@ class OurController(wpilib.XboxController):
         return (self.getRightX(), self.getRightY())
 
 
-class DriverController(OurPS4Controller):
+class DriverController(OurController):
     """Controller with information focused on the driver controls.
 
     In simulation, keyboard input is supported via the simulation GUI.
