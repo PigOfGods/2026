@@ -26,4 +26,4 @@ class JustLeavePlease(mb.AutonomousStateMachine):
     @mb.timed_state(duration=5)
     def gogogo(self):
         """Drive forward for a bit."""
-        self.drivetrain.drive(x_speed=2)  # FIXME: a hardcoded speed does not belong here; probably should be tunable
+        self.drivetrain.drive(ccw_speed=2)  # FIXME: a hardcoded speed does not belong here; probably should be tunable

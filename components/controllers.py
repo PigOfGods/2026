@@ -5,7 +5,7 @@ from wpilib import RobotBase
 from wpilib.simulation import PS4ControllerSim
 
 
-class OurPS4Controller(wpilib.PS4Controller):
+class OurController(wpilib.XboxController):
     """A wrapper around wpilib.PS4Controller to provide easier access to common controls."""
 
     def getLeftStick(self) -> tuple[float, float]:
@@ -38,4 +38,4 @@ class DriverController(OurPS4Controller):
 
     def should_brake(self) -> bool:
         """Determine if the brake button is actively being pressed."""
-        return self.getCrossButton()
+        return self.getXButton()
