@@ -1,5 +1,4 @@
 from phoenix6 import CANBus, configs, hardware, signals, swerve, units
-from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from wpimath.units import inchesToMeters
 
 
@@ -25,14 +24,7 @@ class TunerConstants:
     )
     # When using closed-loop control, the drive motor uses the control
     # output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    _drive_gains = (
-        configs.Slot0Configs()
-        .with_k_p(0.1)
-        .with_k_i(0)
-        .with_k_d(0)
-        .with_k_s(0)
-        .with_k_v(0.124)
-    )
+    _drive_gains = configs.Slot0Configs().with_k_p(0.1).with_k_i(0).with_k_d(0).with_k_s(0).with_k_v(0.124)
 
     # The closed-loop output type to use for the steer motors;
     # This affects the PID/FF gains for the steer motors
@@ -61,7 +53,8 @@ class TunerConstants:
         configs.CurrentLimitsConfigs()
         # Swerve azimuth does not require much torque output, so we can set a relatively low
         # stator current limit to help avoid brownouts without impacting performance.
-        .with_stator_current_limit(60).with_stator_current_limit_enable(True)
+        .with_stator_current_limit(60)
+        .with_stator_current_limit_enable(True)
     )
     _encoder_initial_configs = configs.CANcoderConfiguration()
     # Configs for the Pigeon 2; leave this None to skip applying Pigeon 2 configs
@@ -102,7 +95,9 @@ class TunerConstants:
         .with_pigeon2_configs(_pigeon_configs)
     )
 
-    _constants_creator: swerve.SwerveModuleConstantsFactory[configs.TalonFXConfiguration, configs.TalonFXConfiguration, configs.CANcoderConfiguration] = (
+    _constants_creator: swerve.SwerveModuleConstantsFactory[
+        configs.TalonFXConfiguration, configs.TalonFXConfiguration, configs.CANcoderConfiguration
+    ] = (
         swerve.SwerveModuleConstantsFactory()
         .with_drive_motor_gear_ratio(_drive_gear_ratio)
         .with_steer_motor_gear_ratio(_steer_gear_ratio)
@@ -125,7 +120,6 @@ class TunerConstants:
         .with_steer_friction_voltage(_steer_friction_voltage)
         .with_drive_friction_voltage(_drive_friction_voltage)
     )
-
 
     # Front Left
     _front_left_drive_motor_id = 3
@@ -170,7 +164,6 @@ class TunerConstants:
 
     _back_right_x_pos: units.meter = inchesToMeters(-12.375)
     _back_right_y_pos: units.meter = inchesToMeters(-12.375)
-
 
     front_left = _constants_creator.create_module_constants(
         _front_left_steer_motor_id,
@@ -218,12 +211,12 @@ class TunerConstants:
     )
 
     @classmethod
-    def create_drivetrain(cls) -> CommandSwerveDrivetrain:
+    def create_drivetrain(cls) -> swerve.SwerveDrivetrain:
         """
-        Creates a CommandSwerveDrivetrain instance.
+        Creates a SwerveDrivetrain instance.
         This should only be called once in your robot program.
         """
-        return CommandSwerveDrivetrain(
+        return swerve.SwerveDrivetrain(
             hardware.TalonFX,
             hardware.TalonFX,
             hardware.CANcoder,
