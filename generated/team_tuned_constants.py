@@ -82,23 +82,43 @@ class TunedConstants(TunerConstants):
     # ==========================================================================
     # TUNING GUIDE FOR FOC MODE:
     #
+    # PRE-REQUISITE:
+    #   To use Tuner X Control Tab without interference, the robot code must NOT
+    #   be commanding the motors.
+    #
+    #   Deploy an empty project (or comment out `self.manuallyDrive()` in robot.py).
+    # PHOENIX TUNER X INSTRUCTIONS:
+    # 1. Open Phoenix Tuner X and connect to the robot.
+    # 2. Select one of the Steer motors (e.g., "Front Left Steer").
+    # 3. Go to the "Control" tab.
+    #    - Control Mode: Position TorqueCurrentFOC
+    #    - Gains: Slot 0
+    # 4. Go to the "Plot" tab (or "Graph").
+    #    - Add Signals: Position, ClosedLoopTarget, ClosedLoopError, StatorCurrent.
+    # 5. Enable the robot (Driver Station Enabled).
+    #
+    # TUNING STEPS:
+    #
     # kS (Static Friction Feedforward) - Amps to overcome friction
-    #   - How to tune: Command a very slow constant velocity. If module doesn't move,
-    #     increase kS. If it jerks, decrease kS.
-    #   - Start: 0.25 Amps | Increment: 0.05 Amps | Typical range: 0.1 - 0.5 Amps
+    #   - Test: In Control tab, set Control Mode to "TorqueCurrentFOC".
+    #     Slowly increase the main control slider (labeled "Output" or "Current") until the wheel just starts to move.
+    #     That current value is your kS.
+    #   - Start: 0.0 Amps | Increment: 0.05 Amps | Typical range: 0.1 - 0.5 Amps
     #
     # kV (Velocity Feedforward) - DERIVED from motor specs, usually no tuning needed
     #   - Derived as: (stall_current / free_speed) * gear_ratio
     #   - If actual velocity consistently undershoots/overshoots target, adjust ±10%
     #
     # kP (Proportional Gain) - Amps per rotation of error
-    #   - How to tune: Start low. Increase until module responds quickly to position
-    #     commands. If it oscillates, reduce kP or increase kD.
-    #   - Start: 50 Amps/rot | Increment: 10 Amps/rot | Typical range: 30 - 150 Amps/rot
+    #   - Test: Set Control Mode back to "Position TorqueCurrentFOC".
+    #     Change the "Position" slider abruptly (step response).
+    #     Watch the "Position" graph chase the "ClosedLoopTarget".
+    #   - Goal: Fast response with minimal overshoot.
+    #   - Start: 0.0 Amps/rot | Increment: 10 Amps/rot | Typical range: 30 - 150 Amps/rot
     #
     # kD (Derivative Gain) - Amps per RPS of error change
-    #   - How to tune: If kP causes oscillation, add kD to dampen. Too much = sluggish.
-    #   - Start: 0.5 Amps/RPS | Increment: 0.1 Amps/RPS | Typical range: 0.2 - 2.0 Amps/RPS
+    #   - Test: Same as kP. If the wheel oscillates (wobbles) when reaching target, add kD.
+    #   - Start: 0.0 Amps/RPS | Increment: 0.1 Amps/RPS | Typical range: 0.2 - 2.0 Amps/RPS
     #
     # kI (Integral Gain) - Avoid unless absolutely necessary
     #   - Only use if there's persistent steady-state error after tuning kP/kD/kS.
@@ -109,10 +129,10 @@ class TunedConstants(TunerConstants):
     # ==========================================================================
     _steer_gains = (
         configs.Slot0Configs()
-        .with_k_p(50)  # Start: 50 | Increment: ±10 | Amps per rotation of error
+        .with_k_p(0)  # Start: 0 | Tune up in Tuner X | Amps per rotation of error
         .with_k_i(0)  # Start: 0 | Avoid unless steady-state error persists
-        .with_k_d(0.5)  # Start: 0.5 | Increment: ±0.1 | Dampens oscillation
-        .with_k_s(0.25)  # Start: 0.25 | Increment: ±0.05 | Amps to overcome friction
+        .with_k_d(0)  # Start: 0 | Tune up in Tuner X | Dampens oscillation
+        .with_k_s(0)  # Start: 0 | Tune up in Tuner X | Amps to overcome friction
         .with_k_v(_steer_kv)  # DERIVED ~78.4 | Adjust ±10% if needed | Amps per RPS
         .with_k_a(0)  # Usually leave at 0 unless tuning acceleration
         .with_static_feedforward_sign(signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN)
@@ -123,24 +143,42 @@ class TunedConstants(TunerConstants):
     # ==========================================================================
     # TUNING GUIDE FOR FOC MODE:
     #
+    # PHOENIX TUNER X INSTRUCTIONS:
+    # 1. Open Phoenix Tuner X and connect to the robot.
+    # 2. Put the robot on blocks (wheels off the ground).
+    # 3. Select one of the Drive motors (e.g., "Front Left Drive").
+    # 4. Go to the "Control" tab.
+    #    - Control Mode: Velocity TorqueCurrentFOC
+    #    - Gains: Slot 0
+    # 5. Go to the "Plot" tab.
+    #    - Add Signals: Velocity, ClosedLoopTarget, ClosedLoopError, StatorCurrent.
+    # 6. Enable the robot.
+    #
+    # TUNING STEPS:
+    #
     # kS (Static Friction Feedforward) - Amps to overcome friction
-    #   - How to tune: With robot on blocks, command low velocity. Increase kS until
-    #     wheels just start spinning. Back off slightly.
-    #   - Start: 0.2 Amps | Increment: 0.05 Amps | Typical range: 0.1 - 0.4 Amps
+    #   - Test: In Control tab, set Control Mode to "TorqueCurrentFOC".
+    #     Slowly increase the main control slider (labeled "Output" or "Current") until wheel spins consistently.
+    #     That current value is your kS.
+    #   - Start: 0.0 Amps | Increment: 0.05 Amps | Typical range: 0.1 - 0.4 Amps
     #
     # kV (Velocity Feedforward) - DERIVED from motor specs, usually no tuning needed
     #   - Derived as: (stall_current / free_speed) * gear_ratio
-    #   - If actual velocity consistently undershoots/overshoots target, adjust ±10%
+    #   - Test: Set Control Mode to "Velocity TorqueCurrentFOC".
+    #     Set Velocity slider to 50% of max speed.
+    #     If "Velocity" is consistently below "ClosedLoopTarget", increase kV.
+    #     If above, decrease kV.
     #
     # kP (Proportional Gain) - Amps per RPS of velocity error
-    #   - How to tune: After kV is set, increase kP for faster error correction.
-    #     If wheels oscillate or chatter, reduce kP.
-    #   - Start: 0.1 Amps/RPS | Increment: 0.05 Amps/RPS | Typical range: 0.05 - 0.5 Amps/RPS
+    #   - Test: Step changes in Velocity slider.
+    #     Watch how quickly "Velocity" reaches "ClosedLoopTarget".
+    #   - Goal: Fast rise time without oscillation.
+    #   - Start: 0.0 Amps/RPS | Increment: 1.0 Amps/RPS | Typical range: 1.0 - 10.0 Amps/RPS
     #
     # kD (Derivative Gain) - Usually leave at 0 for drive motors
     #   - Drive motors rarely need kD. Only add if you see velocity oscillation
     #     that kP reduction doesn't fix.
-    #   - Start: 0 | If needed: 0.001 | Typical: 0
+    #   - Start: 0 | If needed: 0.1 | Typical: 0
     #
     # kI (Integral Gain) - Avoid for drive motors
     #   - Can cause integral windup during acceleration. Not recommended.
@@ -148,10 +186,10 @@ class TunedConstants(TunerConstants):
     # ==========================================================================
     _drive_gains = (
         configs.Slot0Configs()
-        .with_k_p(0.1)  # Start: 0.1 | Increment: ±0.05 | Amps per RPS of error
+        .with_k_p(0)  # Start: 0 | Tune up in Tuner X | Amps per RPS of error
         .with_k_i(0)  # Keep at 0 - can cause windup issues
         .with_k_d(0)  # Usually not needed for drive motors
-        .with_k_s(0.2)  # Start: 0.2 | Increment: ±0.05 | Amps to overcome friction
+        .with_k_s(0)  # Start: 0 | Tune up in Tuner X | Amps to overcome friction
         .with_k_v(_drive_kv)  # DERIVED ~24.7 | Adjust ±10% if needed | Amps per RPS
     )
 
@@ -160,11 +198,18 @@ class TunedConstants(TunerConstants):
     # The stator current at which the wheels start to slip
     # ==========================================================================
     # TUNING GUIDE:
-    #   - How to tune: Enable the robot, have it against the wall so that wheels slip.
-    #     Monitor stator current in Phoenix Tuner. Note the current when wheels slip.
-    #     Set _slip_current slightly below that value.
-    #   - Alternative: Start at 40A, drive into a wall at low speed, increase until
-    #     wheels slip, then back off 10%.
+    # PHOENIX TUNER X INSTRUCTIONS:
+    # 1. Place robot on carpet (or competition surface) against a solid wall.
+    # 2. Select a Drive motor in Tuner X.
+    # 3. Go to "Control" tab.
+    #    - Control Mode: TorqueCurrentFOC
+    # 4. Go to "Plot" tab.
+    #    - Add Signal: StatorCurrent.
+    # 5. Enable robot.
+    # 6. Slowly increase "Output" slider (Current) until the wheel breaks traction and slips.
+    # 7. Note the StatorCurrent value on the plot where slip occurred.
+    # 8. Set _slip_current to slightly less than that value (e.g., 10% less).
+    #
     #   - Start: 40 Amps | Increment: 5 Amps | Typical range: 40 - 80 Amps
     #   - Higher = more pushing power but risks wheel damage
     #   - Lower = less slip but reduced acceleration/pushing force
