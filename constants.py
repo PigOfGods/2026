@@ -17,7 +17,7 @@ class CANID(IntEnum):
     """
 
     # Other motors (non-swerve)
-    SHOOTER_MOTOR = 15
+    SHOOTER_MOTOR = 10
 
 
 class RobotDimension:

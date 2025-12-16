@@ -11,9 +11,11 @@ class Shooter:
     """
 
     shooter_motor: wpilib.Talon
+    should_intake: bool = False
+    should_output: bool = False
 
     # Shooter motor speed is tunable via NetworkTables
-    shoot_speed = magicbot.tunable(1.0)
+    shoot_speed = 0.2
 
     def __init__(self):
         """Code to run when initially creating the shooter."""
@@ -26,14 +28,16 @@ class Shooter:
     def is_ready(self):
         """Determine if the shooter is ready to fire."""
         # in a real robot, you'd be using an encoder to determine if the
-        # shooter were at the right speed..
+        # shooter were at the right angle and speed..
         return True
 
     def execute(self):
         """This gets called at the end of the control loop."""
-        if self.enabled:
-            self.shooter_motor.set(self.shoot_speed)
+        if self.should_intake:
+            self.shooter_motor.set(self.shoot_speed)  # Intake is positive
+            print("intaking!!")
+        elif self.should_output:
+            self.shooter_motor.set(-self.shoot_speed)  # Output is negative
+            print("outputing!!")
         else:
-            self.shooter_motor.set(0)
-
-        self.enabled = False
+            self.shooter_motor.set(0)  # Motor is zero

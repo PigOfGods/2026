@@ -21,6 +21,7 @@ class Scurvy(magicbot.MagicRobot):
     drivetrain: components.Drivetrain
     pewpew: components.Shooter
     driver_controller: components.DriverController
+    operator_controller: components.OperatorController
 
     # ------------------------------------------------------------------------------------------------------------------
     # MagicBot methods called at the right time; implement these as desired.
@@ -116,11 +117,13 @@ class Scurvy(magicbot.MagicRobot):
         Note: Swerve drive motors are now created internally by the CTRE SwerveDrivetrain API.
         Only create motors for non-swerve mechanisms here.
         """
-        self.shooter_motor = wpilib.Talon(const.CANID.SHOOTER_MOTOR)
+        self.pewpew_shooter_motor = wpilib.Talon(const.CANID.SHOOTER_MOTOR)
+        print(const.CANID.SHOOTER_MOTOR)
 
     def createControllers(self) -> None:
         """Set up joystick and gamepad objects here."""
         self.driver_controller = components.DriverController(const.ControllerPort.DRIVER_CONTROLLER)
+        self.operator_controller = components.OperatorController(const.ControllerPort.OPERATOR_CONTROLLER)
 
     def createLights(self) -> None:
         """Set up CAN objects for lights."""
@@ -145,3 +148,9 @@ class Scurvy(magicbot.MagicRobot):
                 left_speed=-strafe_right_percent * max_speed,
                 ccw_speed=-rotate_right_percent * MAX_ROTATION_SPEED,
             )
+
+        # Stuff for the operator controller
+
+        # Decide if we should be intaking or vomiting a game piece
+        self.pewpew.should_intake = self.operator_controller.should_intake()
+        self.pewpew.should_output = self.operator_controller.should_output()

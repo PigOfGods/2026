@@ -1,7 +1,7 @@
 {
-  "Keyboard 0 Settings": {
+  "FMS": {
     "window": {
-      "visible": true
+      "visible": false
     }
   },
   "keyboardJoysticks": [
@@ -100,5 +100,6 @@
     {
       "guid": "Keyboard0"
     }
-  ]
+  ],
+  "zeroDisconnectedJoysticks": false
 }
