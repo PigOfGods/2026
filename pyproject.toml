@@ -9,6 +9,8 @@ requires-python = ">=3.13,<3.14"
 # these are NOT deployed to RoboRIO by `robotpy deploy`.
 dependencies = [
     "robotpy>=2025.3.2.2",
+    "sleipnirgroup-choreolib",
+    "phoenix6",
 ]
 
 [tool.robotpy]
@@ -22,8 +24,7 @@ robotpy_extras = [
     # "cscore",
     # "navx",
     "pathplannerlib",
-    # "phoenix5",
-    "phoenix6", # Support for the Kraken x60 — https://api.ctr-electronics.com/phoenix6/release/python/index.html
+    "phoenix6",
     # "rev",
     # "romi",
     "sim",
