@@ -3,7 +3,7 @@
 import math
 from typing import Optional
 
-from choreo.trajectory import SwerveSample
+from choreo import SwerveSample
 from magicbot import feedback
 from phoenix6.hardware import CANcoder, TalonFX
 from phoenix6.swerve import SwerveDrivetrain

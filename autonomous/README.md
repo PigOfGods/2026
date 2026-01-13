@@ -27,6 +27,7 @@ from autonomous.choreo_auto import ChoreoAuto
 class MyAuto(ChoreoAuto):
     MODE_NAME = "My Cool Auto"                    # Display name on Driver Station
     TRAJECTORY_NAME = "my_trajectory"             # Loads deploy/choreo/my_trajectory.traj
+    DISABLED = False                              # Required! Base class is disabled by default
 
     def on_trajectory_start(self) -> None:
         """Called when auto starts - spin up shooter, deploy intake, etc."""
@@ -36,6 +37,10 @@ class MyAuto(ChoreoAuto):
         """Called when trajectory finishes - score, stop intake, etc."""
         pass
 ```
+
+> **Important:** You must set `DISABLED = False` in your auto class! The base `ChoreoAuto` class
+> has `DISABLED = True` to prevent it from appearing in the Driver Station selector (since it
+> has no trajectory configured). Your subclass needs to explicitly enable itself.
 
 ### Creating a Multi-Trajectory Auto
 
@@ -47,6 +52,7 @@ import components
 
 class TwoPieceAuto(ChoreoMultiTrajectoryAuto):
     MODE_NAME = "Two Piece Auto"
+    DISABLED = False  # Required! Base class is disabled by default
 
     shooter: components.Shooter  # Will be injected by MagicBot
 
@@ -95,6 +101,7 @@ Override `during_trajectory()` to perform actions while the robot is moving (cal
 class MyAuto(ChoreoAuto):
     MODE_NAME = "Shoot While Moving"
     TRAJECTORY_NAME = "drive_to_speaker"
+    DISABLED = False
 
     shooter: components.Shooter
 
@@ -114,6 +121,7 @@ For `ChoreoMultiTrajectoryAuto`, you can run actions both **during** and **betwe
 ```python
 class TwoPieceAuto(ChoreoMultiTrajectoryAuto):
     MODE_NAME = "Two Piece"
+    DISABLED = False
 
     shooter: components.Shooter
 

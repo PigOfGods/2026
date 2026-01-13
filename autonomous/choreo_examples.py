@@ -7,7 +7,7 @@ To create a new Choreo auto:
 1. Design your path in the Choreo GUI (https://choreo.autos)
 2. Save the trajectory to deploy/choreo/your_trajectory.traj
 3. Create a new class that extends ChoreoAuto
-4. Set MODE_NAME and TRAJECTORY_NAME
+4. Set MODE_NAME, TRAJECTORY_NAME, and DISABLED = False
 5. Optionally override on_trajectory_start() and on_trajectory_end()
 """
 
@@ -28,6 +28,7 @@ class SimpleChoreoAuto(ChoreoAuto):
 
     MODE_NAME = "Simple Choreo Path"
     TRAJECTORY_NAME = "simple_path"
+    DISABLED = False  # Enable this auto mode (base class is disabled by default)
 
     # You can add other components here that will be injected by MagicBot
     # shooter: components.Shooter
@@ -66,6 +67,7 @@ class SimpleChoreoAuto(ChoreoAuto):
 #     """
 #
 #     MODE_NAME = "Two Piece Choreo"
+#     DISABLED = False  # Enable this auto mode
 #
 #     # Add components that will be injected
 #     shooter: components.Shooter

@@ -21,8 +21,7 @@ from typing import Callable, Optional
 
 import magicbot as mb
 import wpilib
-from choreo import Choreo
-from choreo.trajectory import SwerveSample, Trajectory
+from choreo import SwerveSample, SwerveTrajectory, load_swerve_trajectory
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d
 
@@ -36,31 +35,43 @@ class ChoreoAuto(mb.AutonomousStateMachine):
     (without the .traj extension). The trajectory file should be in
     deploy/choreo/your_trajectory.traj.
 
+    Important: This base class has DISABLED = True so it doesn't appear in the
+    Driver Station autonomous selector. Your subclass must set DISABLED = False
+    to be selectable.
+
+    Example:
+        class MyAuto(ChoreoAuto):
+            MODE_NAME = "My Auto"
+            TRAJECTORY_NAME = "my_path"
+            DISABLED = False  # Required!
+
     Attributes:
         MODE_NAME: Display name for the auto mode (required by MagicBot).
         TRAJECTORY_NAME: Name of the Choreo trajectory file to load.
+        DISABLED: Set to False in your subclass to enable selection.
         DEFAULT: Set to True to make this the default auto mode.
     """
 
     # Subclasses must override these
     MODE_NAME = "Choreo Auto Base"
     TRAJECTORY_NAME: str = ""
+    DISABLED = True  # Base class - subclasses set DISABLED = False
 
     # Components injected by MagicBot
     drivetrain: components.Drivetrain
 
     # Class-level trajectory cache to avoid reloading
-    _trajectory_cache: dict[str, Optional[Trajectory[SwerveSample]]] = {}
+    _trajectory_cache: dict[str, Optional[SwerveTrajectory]] = {}
 
     def __init__(self) -> None:
         """Initialize the autonomous state machine."""
         super().__init__()
-        self._trajectory: Optional[Trajectory[SwerveSample]] = None
+        self._trajectory: Optional[SwerveTrajectory] = None
         self._timer = wpilib.Timer()
         self._trajectory_finished = False
 
     @classmethod
-    def load_trajectory(cls, name: str) -> Optional[Trajectory[SwerveSample]]:
+    def load_trajectory(cls, name: str) -> Optional[SwerveTrajectory]:
         """Load a trajectory by name, with caching.
 
         Trajectories are cached at the class level so they only need to be
@@ -74,9 +85,9 @@ class ChoreoAuto(mb.AutonomousStateMachine):
         """
         if name not in cls._trajectory_cache:
             try:
-                # Choreo.load_trajectory returns Optional[Trajectory]
+                # load_swerve_trajectory returns Optional[SwerveTrajectory]
                 # It loads from deploy/choreo/{name}.traj
-                trajectory = Choreo.load_trajectory(name)
+                trajectory = load_swerve_trajectory(name)
                 cls._trajectory_cache[name] = trajectory
                 if trajectory is None:
                     DriverStation.reportWarning(
@@ -254,6 +265,7 @@ class ChoreoMultiTrajectoryAuto(mb.AutonomousStateMachine):
     """
 
     MODE_NAME = "Multi-Trajectory Auto Base"
+    DISABLED = True  # Base class should not be registered as an autonomous mode
 
     drivetrain: components.Drivetrain
 
@@ -262,7 +274,7 @@ class ChoreoMultiTrajectoryAuto(mb.AutonomousStateMachine):
         super().__init__()
         self._trajectories: list[tuple[str, Optional[Callable[[], None]]]] = []
         self._current_trajectory_index = 0
-        self._current_trajectory: Optional[Trajectory[SwerveSample]] = None
+        self._current_trajectory: Optional[SwerveTrajectory] = None
         self._timer = wpilib.Timer()
 
     def setup_trajectories(self) -> list[tuple[str, Optional[Callable[[], None]]]]:
