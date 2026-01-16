@@ -17,7 +17,7 @@ Example usage:
             self.shooter.shoot()
 """
 
-from typing import Callable, Optional, TypeAlias
+from typing import Callable, TypeAlias
 
 import magicbot as mb
 import wpilib
