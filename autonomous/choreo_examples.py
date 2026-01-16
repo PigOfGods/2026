@@ -27,7 +27,7 @@ class SimpleChoreoAuto(ChoreoAuto):
     """
 
     MODE_NAME = "Some Sassy Swerve Slide"
-    TRAJECTORY_NAME = "swerve"
+    TRAJECTORY_NAME = "DriveToNeutralZone"
     DISABLED = False  # Enable this auto mode (base class is disabled by default)
     DEFAULT = True
 
