@@ -11,7 +11,6 @@ requires-python = ">=3.13,<3.14"
 # so that `uv sync` does not remove packages later installed by `robotpy sync`.
 dependencies = [
     "robotpy[apriltag,sim]>=2026.1.1",
-    "robotpy-pathplannerlib",
     "phoenix6",
     "sleipnirgroup-choreolib",
 ]
@@ -36,7 +35,6 @@ components = [
 
 # Python packages to install ON the RoboRIO during `robotpy deploy`
 requires = [
-    "robotpy-pathplannerlib",
     "phoenix6",
     "sleipnirgroup-choreolib",
 ]
