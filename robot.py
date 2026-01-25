@@ -5,6 +5,7 @@ import math
 import magicbot
 import wpilib
 from wpimath.geometry import Pose2d, Rotation2d
+from magicbot import feedback
 
 import components
 import constants as const
@@ -12,8 +13,7 @@ from generated.tuner_constants import TunerConstants
 
 # Maximum rotation speed in rad/s
 MAX_ROTATION_SPEED = math.pi
-
-
+    
 class Scurvy(magicbot.MagicRobot):
     """The main class for the robot."""
 
@@ -38,7 +38,7 @@ class Scurvy(magicbot.MagicRobot):
 
     def teleopInit(self) -> None:
         """Called when teleop starts, after all components' on_enable()."""
-        self.timer = wpilib.Timer
+        pass
 
     def teleopPeriodic(self) -> None:
         """Called periodically during teleop (and autonomous, if `self.use_teleop_in_autonomous==True`).
@@ -46,16 +46,8 @@ class Scurvy(magicbot.MagicRobot):
         Called before all components' execute().
         """
         self.manuallyDrive()  # Assumes we always want to drive manually in teleop
-        time_remaining = self.timer.getMatchTime()
-        can_score = True
-        won_auto = False
-
-        if time_remaining < 30:
-            can_score = True
-
-        elif time_remaining < 130:  # Checks what block we are and if we can score
-            block = int((130 - time_remaining) // 25)
-            can_score = (block % 2 == 0) != won_auto
+        
+        self.hubIsActive()
 
         # self.driveForward()
 
@@ -156,3 +148,27 @@ class Scurvy(magicbot.MagicRobot):
                 left_speed=-strafe_right_percent * max_speed,
                 ccw_speed=-rotate_right_percent * MAX_ROTATION_SPEED,
             )
+
+    @feedback
+    def hubIsActive(self) -> bool:
+        alliance =  wpilib.DriverStation.getAlliance()
+        data = wpilib.DriverStation.getGameSpecificMessage()
+        if data in ("B", "R"):  # Checks if we won auto
+            self.won_auto = (data == "B") == (alliance == wpilib.DriverStation.Alliance.kBlue)
+        else:
+            return False
+
+        time_remaining = wpilib.Timer.getMatchTime()
+        can_score = True
+
+        if time_remaining < 30:
+            can_score = True
+
+        elif time_remaining < 130:  # Checks what block we are and if we can score
+            block = int((130 - time_remaining) // 25)
+            can_score = (block % 2 == 0) != self.won_auto
+
+        else:
+            can_score = True
+        
+        return can_score
